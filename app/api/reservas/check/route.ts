@@ -1,26 +1,27 @@
 import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   console.log("-----------------------------------------");
-  console.log("Iniciando la solicitud GET en /api/reservas/check");
+  console.log("Iniciando la solicitud POST en /api/reservas/check");
 
   try {
-    const url = new URL(req.url);
-    const fecha = url.searchParams.get("fecha");
-    const hora = url.searchParams.get("hora");
+    const { start, duration_hours } = await req.json();
 
-    // Paso 1: Verificar que los parámetros se están recibiendo correctamente
     console.log("Parámetros recibidos:");
-    console.log(`- Fecha: ${fecha}`);
-    console.log(`- Hora: ${hora}`);
+    console.log(`- Fecha/Hora de inicio: ${start}`);
+    console.log(`- Duración (horas): ${duration_hours}`);
 
-    if (!fecha || !hora) {
-      console.error("Error 400: Falta uno o ambos parámetros (fecha o hora).");
+    if (!start || duration_hours === undefined) {
+      console.error("Error 400: Falta uno o ambos parámetros.");
       return NextResponse.json({ error: "Faltan parámetros" }, { status: 400 });
     }
 
-    // Paso 2: Intentar la conexión a la base de datos
+    const startDatetime = new Date(start);
+    const endDatetime = new Date(startDatetime.getTime() + duration_hours * 60 * 60 * 1000);
+
+    console.log(`- Fecha/Hora de fin calculada: ${endDatetime.toISOString()}`);
+
     console.log("Intentando conectar a la base de datos...");
     const connection = await mysql.createConnection({
       host: '193.203.166.162',
@@ -30,30 +31,29 @@ export async function GET(req: Request) {
     });
     console.log("¡Conexión a la base de datos exitosa!");
 
-    // Paso 3: Preparar y ejecutar la consulta SQL
-    const sqlQuery = "SELECT * FROM reservas WHERE fecha = ? AND hora = ?";
-    console.log("Ejecutando la consulta SQL:");
+    const sqlQuery = "SELECT COUNT(*) AS count FROM reservas WHERE start_datetime < ? AND DATE_ADD(start_datetime, INTERVAL duration_hours HOUR) > ?";
+    console.log("Ejecutando la consulta SQL para verificar conflictos:");
     console.log(`- Query: "${sqlQuery}"`);
-    console.log(`- Valores: [${fecha}, ${hora}]`);
+    console.log(`- Valores: [${endDatetime.toISOString()}, ${startDatetime.toISOString()}]`);
 
-    const [rows] = await connection.execute(sqlQuery, [fecha, hora]);
-    
-    // Paso 4: Revisar el resultado de la consulta
-    console.log("Consulta ejecutada. Filas encontradas:", rows);
+    const [rows] = await connection.execute(sqlQuery, [endDatetime.toISOString(), startDatetime.toISOString()]);
+    const [result]: any = rows;
+    const isAvailable = result.count === 0;
+
+    console.log("Consulta ejecutada. Reservas conflictivas encontradas:", result.count);
 
     await connection.end();
     console.log("Conexión a la base de datos cerrada.");
 
-    // Devolver el resultado de la consulta
-    return NextResponse.json(rows ?? []);
+    return NextResponse.json({ available: isAvailable });
 
-  } catch (err: any) {
-    // Paso 5: Capturar y registrar cualquier error
+  } catch (err: unknown) {
     console.error("--- OCURRIÓ UN ERROR EN EL SERVIDOR ---");
-    console.error("Error en la ruta /api/reservas/check:", err.message); // Imprimir solo el mensaje de error para más claridad
-    // Imprimir el stack trace para un diagnóstico más detallado
-    if (err.stack) {
+    if (err instanceof Error) {
+      console.error("Error en la ruta /api/reservas/check:", err.message);
       console.error("Stack trace:", err.stack);
+    } else {
+      console.error("Error en la ruta /api/reservas/check:", err);
     }
     console.error("-----------------------------------------");
 

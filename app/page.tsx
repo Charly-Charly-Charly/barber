@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function HomePage() {
   return (
@@ -26,7 +27,13 @@ export default function HomePage() {
           </Link>
         </div>
         <div className="mt-10 md:mt-0 md:ml-12">
-          <img src="/barber-hero.png" alt="Barbería" className="rounded-2xl shadow-lg w-[400px]" />
+          <Image 
+            src="/barber-hero.png" 
+            alt="Barbería" 
+            className="rounded-2xl shadow-lg w-[400px]"
+            width={400} 
+            height={267} 
+          />
         </div>
       </section>
 
@@ -34,22 +41,46 @@ export default function HomePage() {
         <h3 className="text-3xl font-bold text-gray-900 mb-8">Nuestros Servicios</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="p-6 border rounded-xl shadow hover:shadow-lg transition">
-            <img src="/corte.jpg" alt="Corte" className="rounded-lg mb-4 w-full h-40 object-cover" />
+            <Image 
+              src="/corte.jpg" 
+              alt="Corte de Pelo" 
+              className="rounded-lg mb-4 w-full h-40 object-cover"
+              width={500}
+              height={160}
+            />
             <h4 className="font-semibold text-lg">Corte de Pelo</h4>
             <p className="text-gray-600">Q75 • 1 hora</p>
           </div>
           <div className="p-6 border rounded-xl shadow hover:shadow-lg transition">
-            <img src="/barba.jpg" alt="Barba" className="rounded-lg mb-4 w-full h-40 object-cover" />
+            <Image 
+              src="/barba.jpg" 
+              alt="Corte de Barba" 
+              className="rounded-lg mb-4 w-full h-40 object-cover" 
+              width={500}
+              height={160}
+            />
             <h4 className="font-semibold text-lg">Corte de Barba</h4>
             <p className="text-gray-600">Q50 • 1 hora</p>
           </div>
           <div className="p-6 border rounded-xl shadow hover:shadow-lg transition">
-            <img src="/spa.jpg" alt="Spa" className="rounded-lg mb-4 w-full h-40 object-cover" />
+            <Image 
+              src="/spa.jpg" 
+              alt="Exfoliación" 
+              className="rounded-lg mb-4 w-full h-40 object-cover"
+              width={500}
+              height={160}
+            />
             <h4 className="font-semibold text-lg">Exfoliación</h4>
             <p className="text-gray-600">Q60 • 1 hora</p>
           </div>
           <div className="p-6 border rounded-xl shadow hover:shadow-lg transition">
-            <img src="/masaje.jpg" alt="Masaje" className="rounded-lg mb-4 w-full h-40 object-cover" />
+            <Image 
+              src="/masaje.jpg" 
+              alt="Spa Facial" 
+              className="rounded-lg mb-4 w-full h-40 object-cover"
+              width={500}
+              height={160}
+            />
             <h4 className="font-semibold text-lg">Spa Facial</h4>
             <p className="text-gray-600">Q120 • 1 hora</p>
           </div>

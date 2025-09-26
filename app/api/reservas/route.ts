@@ -9,8 +9,11 @@ export async function GET() {
   try {
     const [rows]: any = await pool.query("SELECT * FROM reservas ORDER BY start_datetime");
     return NextResponse.json(rows);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || String(err) }, { status: 500 });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message || "Error en el servidor" }, { status: 500 });
+    }
+    return NextResponse.json({ error: "Error en el servidor" }, { status: 500 });
   }
 }
 
@@ -49,7 +52,10 @@ export async function POST(request: Request) {
     // 3) La funcionalidad de correo electrónico ha sido eliminada.
 
     return NextResponse.json({ success: true, id: result.insertId });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || String(err) }, { status: 500 });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message || "Error en el servidor" }, { status: 500 });
+    }
+    return NextResponse.json({ error: "Error en el servidor" }, { status: 500 });
   }
 }
