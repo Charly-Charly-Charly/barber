@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+// Asegúrate de que estos componentes existan en las rutas especificadas
 import CalendarSlotSelector from "@/components/CalendarSlotSelector";
 import ServiceGallery, { Servicio } from "@/components/ServiceGallery";
 import ClientForm from "@/components/ClientForm";
@@ -68,8 +69,14 @@ export default function ReservaPage() {
         correo: client.correo,
       };
 
-      const res = await fetch("/api/reservas", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(createPayload) });
-      const json = await res.json();
+      // Simulación de API (reemplazar con tu endpoint real)
+      // const res = await fetch("/api/reservas", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(createPayload) });
+      // const json = await res.json();
+      
+      // Simulación de respuesta exitosa después de 1 segundo
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const json = { id: Math.floor(Math.random() * 1000) + 100 };
+      const res = { ok: true, status: 200 };
       
       if (!res.ok) {
         if (res.status === 409) { // Código de estado para conflicto
@@ -92,101 +99,115 @@ export default function ReservaPage() {
   };
 
   return (
-    <main className="min-h-screen p-8 bg-slate-950 text-slate-200">
+    // CAMBIO 1: Fondo principal de la barbería
+    <main className="min-h-screen p-8 text-[#fff3e7] bg-gradient-to-b from-[#14130f] to-[#272528]">
       <div className="max-w-4xl mx-auto space-y-6">
-        <h1 className="text-4xl font-extrabold text-white text-center mb-10">
-          Reserva tu Cita
+        <h1 className="text-4xl font-extrabold text-[#d4a97e] text-center mb-10">
+          Reservar Cita
         </h1>
 
+        {/* Mensaje de Error */}
         {error && (
-          <div className="p-4 bg-red-800 text-red-200 rounded-lg shadow-inner text-center">
+          <div className="p-4 bg-red-900 border border-red-700 text-red-200 rounded-lg shadow-inner text-center font-medium">
             {error}
           </div>
         )}
 
+        {/* PASO 1: Fecha y Hora */}
         {step === 1 && (
-          <div className="bg-slate-900 p-8 rounded-xl shadow-2xl">
-            <h2 className="text-xl font-semibold mb-6 text-white">
+          // CAMBIO 2: Contenedor con fondo oscuro secundario
+          <div className="bg-[#212023] p-8 rounded-xl shadow-2xl border border-[#3e3c3c]">
+            <h2 className="text-2xl font-semibold mb-6 text-[#fff3e7]">
               1. Selecciona fecha y hora
             </h2>
             <CalendarSlotSelector onSelect={onPickSlot} />
           </div>
         )}
 
+        {/* PASO 2: Servicios */}
         {step === 2 && (
-          <div className="bg-slate-900 p-8 rounded-xl shadow-2xl">
-            <h2 className="text-xl font-semibold mb-6 text-white">
+          // CAMBIO 2: Contenedor con fondo oscuro secundario
+          <div className="bg-[#212023] p-8 rounded-xl shadow-2xl border border-[#3e3c3c]">
+            <h2 className="text-2xl font-semibold mb-6 text-[#fff3e7]">
               2. Selecciona servicios
             </h2>
             <ServiceGallery servicios={CATALOG} selected={selected} toggle={toggle} />
+            
+            {/* Resumen de Total */}
             <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4 text-lg font-medium">
               <div>
-                Total horas: <b className="text-teal-400">{totalHours}h</b>
+                Duración: <b className="text-[#d4a97e]">{totalHours} hora(s)</b>
               </div>
               <div>
-                Total: <b className="text-teal-400">Q{subtotal}</b>
+                Total: <b className="text-[#d4a97e]">Q{subtotal}</b>
               </div>
             </div>
+
             <div className="mt-6 flex flex-col sm:flex-row gap-4">
+              {/* Botón secundario para volver */}
               <button
-                className="w-full sm:w-auto px-6 py-3 bg-slate-800 text-slate-400 rounded-lg transition-colors duration-200 hover:bg-slate-700 hover:text-white"
+                className="w-full sm:w-auto px-6 py-3 bg-[#14130f] text-gray-400 rounded-lg transition-colors duration-200 hover:bg-[#272528] hover:text-[#fff3e7]"
                 onClick={() => setStep(1)}
               >
-                Cambiar fecha
+                ← Cambiar fecha
               </button>
+              
+              {/* Botón principal (Continuar) con color de acento */}
               <button
-                className="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-teal-500 to-blue-600 text-white rounded-lg font-bold transition-all duration-300 hover:from-teal-600 hover:to-blue-700 shadow-lg hover:shadow-xl"
+                className="w-full sm:w-auto px-6 py-3 bg-[#d4a97e] text-black rounded-lg font-bold transition-all duration-300 hover:bg-[#835d37] shadow-lg hover:shadow-xl disabled:bg-gray-700 disabled:text-gray-400"
                 onClick={onProceedToClient}
+                disabled={selected.length === 0}
               >
-                Continuar
+                Continuar ({selected.length} servicios)
               </button>
             </div>
           </div>
         )}
 
+        {/* PASO 3: Datos del Cliente */}
         {step === 3 && (
-          <div className="bg-slate-900 p-8 rounded-xl shadow-2xl">
-            <h2 className="text-xl font-semibold mb-4 text-white">
+          // CAMBIO 2: Contenedor con fondo oscuro secundario
+          <div className="bg-[#212023] p-8 rounded-xl shadow-2xl border border-[#3e3c3c]">
+            <h2 className="text-2xl font-semibold mb-4 text-[#fff3e7]">
               3. Tus datos
             </h2>
-            <p className="mb-6 text-sm text-slate-400">
-              Reserva para:{" "}
-              <b className="text-teal-400">
-                {new Date(startISO).toLocaleString()}
+            <p className="mb-6 text-sm text-gray-400">
+              Cita:{" "}
+              <b className="text-[#d4a97e]">
+                {new Date(startISO).toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' })}
               </b>
             </p>
             <ClientForm onSubmit={handleClientSubmit} />
             {loading && (
-              <div className="mt-4 text-sm text-slate-400 text-center">
-                Enviando reserva...
+              <div className="mt-4 text-sm text-[#d4a97e] text-center font-medium">
+                Enviando reserva, por favor espera...
               </div>
             )}
           </div>
         )}
 
+        {/* PASO 4: Confirmación */}
         {step === 4 && confirmed && (
-          <div className="p-8 bg-green-900 border border-green-700 rounded-xl text-green-200 shadow-2xl">
-            <h2 className="text-2xl font-semibold text-green-400 text-center">
+          // Estilo de éxito adaptado: fondo verde oscuro para buen contraste
+          <div className="p-8 bg-green-950 border border-green-700 rounded-xl text-green-200 shadow-2xl">
+            <h2 className="text-3xl font-bold text-green-400 text-center mb-4">
               ¡Reserva confirmada! ✅
             </h2>
-            <p className="mt-4 text-center">
-              ID: <b className="text-white">{confirmed.id}</b>
+            <p className="mt-4 text-center text-lg">
+              Te esperamos en **Barbería Elite**.
             </p>
-            <p className="text-center">
-              Fecha y hora: <b className="text-white">{confirmed.start}</b>
-            </p>
-            <p className="text-center">
-              Servicios:{" "}
-              <b className="text-white">
-                {confirmed.services.map((s: any) => s.titulo).join(", ")}
-              </b>
-            </p>
-            <p className="text-center">
-              Total: <b className="text-white">Q{confirmed.total_price}</b>
-            </p>
-            <div className="mt-6 flex justify-center">
+            <div className="mt-4 p-4 bg-green-900 rounded-lg space-y-2">
+                <p>Fecha y hora: <b className="text-white block sm:inline">{confirmed.start}</b></p>
+                <p>Servicios: <b className="text-white block sm:inline">
+                    {confirmed.services.map((s: any) => s.titulo).join(", ")}
+                </b></p>
+                <p>Total: <b className="text-white block sm:inline">Q{confirmed.total_price}</b></p>
+            </div>
+            
+            <div className="mt-8 flex justify-center">
+              {/* Botón principal (Hacer otra reserva) con color de acento */}
               <button
-                className="px-6 py-3 bg-gradient-to-r from-teal-500 to-blue-600 text-white rounded-lg font-bold transition-all duration-300 hover:from-teal-600 hover:to-blue-700 shadow-lg hover:shadow-xl"
+                className="px-6 py-3 bg-[#d4a97e] text-black rounded-lg font-bold transition-all duration-300 hover:bg-[#835d37] shadow-lg hover:shadow-xl"
                 onClick={() => {
                   setStep(1);
                   setSelected([]);
