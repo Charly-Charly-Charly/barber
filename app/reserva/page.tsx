@@ -48,7 +48,7 @@ export default function ReservaPage() {
     setLoading(true);
 
     try {
-      // Preparando y enviando el payload de creación
+      // Preparando el payload
       const services = selected
         .map(id => CATALOG.find(c => c.id === id))
         .filter(s => s !== undefined)
@@ -69,26 +69,41 @@ export default function ReservaPage() {
         correo: client.correo,
       };
 
-      // Simulación de API (reemplazar con tu endpoint real)
-      // const res = await fetch("/api/reservas", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(createPayload) });
-      // const json = await res.json();
+      // --- INICIO DE SIMULACIÓN/LLAMADA A API REAL ---
       
-      // Simulación de respuesta exitosa después de 1 segundo
+      // En un entorno real, usarías la línea siguiente:
+      // const res = await fetch("/api/reservas", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(createPayload) });
+
+      // SIMULACIÓN (Ejemplo):
       await new Promise(resolve => setTimeout(resolve, 1000));
-      const json = { id: Math.floor(Math.random() * 1000) + 100 };
-      const res = { ok: true, status: 200 };
+      const jsonSimulado = { id: Math.floor(Math.random() * 1000) + 100 };
+      const resSimulada = { ok: true, status: 200, json: async () => jsonSimulado };
+      
+      const res = resSimulada; // Usa resSimulada para la simulación
+      
+      // IMPORTANTE: Si usas la llamada real a fetch, debes re-habilitar la línea siguiente:
+      // const json: any = await res.json();
+      
+      // En la simulación, ya tenemos 'jsonSimulado'. Lo renombramos para seguir la lógica:
+      const json: any = jsonSimulado; 
+      
+      // --- FIN DE SIMULACIÓN ---
       
       if (!res.ok) {
         if (res.status === 409) { // Código de estado para conflicto
           setError("El horario seleccionado entra en conflicto con otra reserva. Elige otro horario.");
           setStep(1); // volver a seleccionar slot
         } else {
+          // REPARACIÓN: Usar 'any' en 'json' permite acceder a 'json.error'
           throw new Error(json.error || "Error creando reserva");
         }
         return;
       }
       
-      setConfirmed({ id: json.id, ...createPayload, start: new Date(startISO).toLocaleString() });
+      // Convertir la fecha a formato legible para la confirmación
+      const readableStart = new Date(startISO).toLocaleString('es-ES', { dateStyle: 'full', timeStyle: 'short' });
+
+      setConfirmed({ id: json.id, ...createPayload, start: readableStart });
       setStep(4);
 
     } catch (err: any) {
@@ -99,7 +114,7 @@ export default function ReservaPage() {
   };
 
   return (
-    // CAMBIO 1: Fondo principal de la barbería
+    // Fondo principal de la barbería (degradado oscuro)
     <main className="min-h-screen p-8 text-[#fff3e7] bg-gradient-to-b from-[#14130f] to-[#272528]">
       <div className="max-w-4xl mx-auto space-y-6">
         <h1 className="text-4xl font-extrabold text-[#d4a97e] text-center mb-10">
@@ -115,7 +130,6 @@ export default function ReservaPage() {
 
         {/* PASO 1: Fecha y Hora */}
         {step === 1 && (
-          // CAMBIO 2: Contenedor con fondo oscuro secundario
           <div className="bg-[#212023] p-8 rounded-xl shadow-2xl border border-[#3e3c3c]">
             <h2 className="text-2xl font-semibold mb-6 text-[#fff3e7]">
               1. Selecciona fecha y hora
@@ -126,7 +140,6 @@ export default function ReservaPage() {
 
         {/* PASO 2: Servicios */}
         {step === 2 && (
-          // CAMBIO 2: Contenedor con fondo oscuro secundario
           <div className="bg-[#212023] p-8 rounded-xl shadow-2xl border border-[#3e3c3c]">
             <h2 className="text-2xl font-semibold mb-6 text-[#fff3e7]">
               2. Selecciona servicios
@@ -166,7 +179,6 @@ export default function ReservaPage() {
 
         {/* PASO 3: Datos del Cliente */}
         {step === 3 && (
-          // CAMBIO 2: Contenedor con fondo oscuro secundario
           <div className="bg-[#212023] p-8 rounded-xl shadow-2xl border border-[#3e3c3c]">
             <h2 className="text-2xl font-semibold mb-4 text-[#fff3e7]">
               3. Tus datos
@@ -188,7 +200,6 @@ export default function ReservaPage() {
 
         {/* PASO 4: Confirmación */}
         {step === 4 && confirmed && (
-          // Estilo de éxito adaptado: fondo verde oscuro para buen contraste
           <div className="p-8 bg-green-950 border border-green-700 rounded-xl text-green-200 shadow-2xl">
             <h2 className="text-3xl font-bold text-green-400 text-center mb-4">
               ¡Reserva confirmada! ✅
